@@ -22,6 +22,10 @@
       },
       {
          "HasPrimaryKey": true,
+         "Name": "[dbo].[Employees]"
+      },
+      {
+         "HasPrimaryKey": true,
          "Name": "[dbo].[Order Details]"
       },
       {
