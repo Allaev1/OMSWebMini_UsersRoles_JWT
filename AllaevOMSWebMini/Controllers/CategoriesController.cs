@@ -23,9 +23,18 @@ namespace AllaevOMSWebMini.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories(bool showPicture)
         {
-            return await _context.Categories.ToListAsync();
+            if (showPicture)
+                return await _context.Categories.ToListAsync();
+            else
+                return await _context.Categories.Select(x => 
+                new Category() 
+                { 
+                    CategoryId = x.CategoryId, 
+                    CategoryName = x.CategoryName, 
+                    Description = x.Description 
+                }).ToListAsync();
         }
 
         // GET: api/Categories/5
