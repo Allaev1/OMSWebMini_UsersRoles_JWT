@@ -21,14 +21,14 @@ namespace AllaevOMSWebMini.Controllers
             this.northwindContext = northwindContext;
         }
 
-        // api/Products
+        // GET: api/Products
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await northwindContext.Products.ToListAsync();
         }
 
-        // api/Products/1
+        // GET: api/Products/1
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
@@ -37,6 +37,20 @@ namespace AllaevOMSWebMini.Controllers
             if (product == null) return NotFound();
 
             return product;
+        }
+
+        // DELETE: api/Products/1
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteProduct(int id)
+        {
+            var product = await northwindContext.Products.FindAsync(id);
+
+            if (product == null) return NotFound();
+
+            northwindContext.Products.Remove(product);
+            await northwindContext.SaveChangesAsync();
+
+            return Ok($"Product with ID - {id}, was delted");
         }
     }
 }
