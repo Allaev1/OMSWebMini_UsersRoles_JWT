@@ -32,7 +32,11 @@ namespace AllaevOMSWebMini.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            return await northwindContext.Products.FirstOrDefaultAsync(a => a.ProductId == id);
+            var product = await northwindContext.Products.FindAsync(id);
+
+            if (product == null) return NotFound();
+
+            return product;
         }
     }
 }
