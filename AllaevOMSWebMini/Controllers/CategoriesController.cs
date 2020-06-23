@@ -55,7 +55,7 @@ namespace AllaevOMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, [FromBody]Category category)
         {
             if (id != category.CategoryId)
             {
@@ -87,12 +87,12 @@ namespace AllaevOMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult<Category>> PostCategory([FromBody] Category category)
         {
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return CreatedAtAction(nameof(GetCategory), new { id = category.CategoryId }, category);
         }
 
         // DELETE: api/Categories/5
