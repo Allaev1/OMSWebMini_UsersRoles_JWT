@@ -52,5 +52,15 @@ namespace AllaevOMSWebMini.Controllers
 
             return Ok($"Product with ID - {id}, was delted");
         }
+
+        // POST: api/Products
+        [HttpPost]
+        public async Task<ActionResult<Product>> PostProduct([FromBody] Product newProduct)
+        {
+            northwindContext.Products.Add(newProduct);
+            await northwindContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProduct), new { id = newProduct.ProductId }, newProduct);
+        }
     }
 }
