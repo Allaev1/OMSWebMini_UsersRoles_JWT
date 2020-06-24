@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using AllaevOMSWebMini.Data;
@@ -61,6 +62,38 @@ namespace AllaevOMSWebMini.Controllers
             await northwindContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetProduct), new { id = newProduct.ProductId }, newProduct);
+        }
+
+        // PUT: api/Products/1
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Product>> PutProduct(int id, [FromBody] Product product)
+        {
+            if (id != product.ProductId) return BadRequest();
+
+            northwindContext.Entry(product).State = EntityState.Modified;
+
+            try
+            {
+                await northwindContext.SaveChangesAsync();
+            }
+            catch (DBConcurrencyException)
+            {
+                if (!ProductExisit(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return product;
+        }
+
+        private bool ProductExisit(int id)
+        {
+            return northwindContext.Products.Any(p => p.ProductId == id);
         }
     }
 }
