@@ -120,16 +120,7 @@ namespace AllaevOMSWebMini.Controllers
                 }
                 catch (Exception e)
                 {
-                    try
-                    {
-                        await transaction.RollbackAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(ex.Message);
-                    }
-
-                    throw new Exception(e.Message);
+                    await transaction.RollbackAsync();
                 }
             }
         }
