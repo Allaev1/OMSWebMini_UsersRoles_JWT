@@ -28,6 +28,8 @@ namespace AllaevOMSWebMini.Controllers
             return await _context.Orders.ToListAsync();
         }
 
+        //You may have problem on this endpoint
+        //this link may help you: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle-was-detected-which-is-not-supported
         // GET: api/Orders/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Order>> GetOrder(int id)
@@ -38,6 +40,10 @@ namespace AllaevOMSWebMini.Controllers
             {
                 return NotFound();
             }
+
+            var detailedOrder = await _context.Orders.Where(o => o.OrderId == id).Include(o => o.OrderDetails).FirstOrDefaultAsync();
+
+            order.OrderDetails = detailedOrder.OrderDetails;
 
             return order;
         }
@@ -96,10 +102,36 @@ namespace AllaevOMSWebMini.Controllers
                 return NotFound();
             }
 
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var orderDetailsToDelete = (await _context.Orders.Include(o => o.OrderDetails).Where(o => o.OrderId == id).FirstOrDefaultAsync()).OrderDetails;
 
-            return order;
+                    _context.OrderDetails.RemoveRange(orderDetailsToDelete);
+                    await _context.SaveChangesAsync();
+
+                    _context.Orders.Remove(order);
+                    await _context.SaveChangesAsync();
+
+                    await transaction.CommitAsync();
+
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception(ex.Message);
+                    }
+
+                    throw new Exception(e.Message);
+                }
+            }
         }
 
         private bool OrderExists(int id)
