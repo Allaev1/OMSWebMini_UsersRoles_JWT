@@ -121,6 +121,8 @@ namespace AllaevOMSWebMini.Controllers
                 catch (Exception e)
                 {
                     await transaction.RollbackAsync();
+
+                    throw new Exception(e.Message);
                 }
             }
         }
