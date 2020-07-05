@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -67,6 +68,31 @@ namespace OMSWebMini.Controllers
             await northwindContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetEmployee), new { id = newEmployee.EmployeeId }, newEmployee);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutEmployee(int id,[FromBody]Employee editedEmployee)
+        {
+            if (id != editedEmployee.EmployeeId) return BadRequest();
+
+            northwindContext.Entry(editedEmployee).State = EntityState.Modified;
+
+            try
+            {
+                await northwindContext.SaveChangesAsync();
+            }
+            catch(DBConcurrencyException)
+            {
+                if (!EmployeeExists(id)) return NotFound();
+                else throw;
+            }
+
+            return Ok();
+        }
+
+        private bool EmployeeExists(int id)
+        {
+            return northwindContext.Employees.Any(e => e.EmployeeId== id);
         }
     }
 }
