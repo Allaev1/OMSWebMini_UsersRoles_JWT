@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace AllaevOMSWebMini.Model
+namespace OMSWebMini.Model
 {
     public partial class Shipper
     {

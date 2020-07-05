@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using AllaevOMSWebMini.Data;
-using AllaevOMSWebMini.Model;
+using OMSWebMini.Data;
+using OMSWebMini.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AllaevOMSWebMini.Controllers
+namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

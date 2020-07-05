@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using AllaevOMSWebMini.Data;
-using AllaevOMSWebMini.Model;
+using OMSWebMini.Data;
+using OMSWebMini.Model;
 
-namespace AllaevOMSWebMini.Controllers
+namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
