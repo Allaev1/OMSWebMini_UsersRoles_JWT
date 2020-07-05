@@ -23,7 +23,7 @@ namespace OMSWebMini.Controllers
 
         //GET api/Employes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetAll(bool showReports = false, bool showPhoto = false)
+        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees(bool showReports = false, bool showPhoto = false)
         {
             var employes = await northwindContext.Employees.ToListAsync();
 
@@ -48,7 +48,7 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Employee>> GetById(int id)
+        public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
             var employee = await northwindContext.Employees.FindAsync(id);
 
@@ -58,6 +58,15 @@ namespace OMSWebMini.Controllers
             }
 
             return employee;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<Employee>> PostEmployee([FromBody]Employee newEmployee)
+        {
+            northwindContext.Employees.Add(newEmployee);
+            await northwindContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEmployee), new { id = newEmployee.EmployeeId }, newEmployee);
         }
     }
 }
