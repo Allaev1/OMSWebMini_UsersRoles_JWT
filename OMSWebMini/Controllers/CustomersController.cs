@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -35,6 +36,35 @@ namespace OMSWebMini.Controllers
             if (customer == null) return NotFound();
 
             return customer;
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> PostCustomer([FromBody] Customer newCustomer)
+        {
+            northwindContext.Customers.Add(newCustomer);
+            await northwindContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutCustomer(string id, [FromBody] Customer editedCustomer)
+        {
+            northwindContext.Entry(editedCustomer).State = EntityState.Modified;
+
+            try
+            {
+                await northwindContext.SaveChangesAsync();
+            }
+            catch(DBConcurrencyException)
+            {
+                bool isCustomerExist = northwindContext.Customers.Any(a => a.CustomerId == id);
+
+                if (!isCustomerExist) return NotFound();
+                else throw;
+            }
+
+            return NoContent();
         }
     }
 }
