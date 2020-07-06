@@ -66,5 +66,18 @@ namespace OMSWebMini.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DelteCustomer(string id)
+        {
+            var customer = await northwindContext.Customers.FindAsync(id);
+
+            if (customer == null) return NotFound();
+
+            northwindContext.Customers.Remove(customer);
+            await northwindContext.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
