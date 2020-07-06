@@ -36,5 +36,14 @@ namespace OMSWebMini.Controllers
 
             return supplier;
         }
+
+        [HttpPost]
+        public async Task<ActionResult<Supplier>> PostSupplier([FromBody]Supplier newSupplier)
+        {
+            northwindContext.Suppliers.Add(newSupplier);
+            await northwindContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetSupplier), new { id = newSupplier.SupplierId }, newSupplier);
+        }
     }
 }
