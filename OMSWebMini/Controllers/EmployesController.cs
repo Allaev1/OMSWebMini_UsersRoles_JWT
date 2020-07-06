@@ -90,6 +90,20 @@ namespace OMSWebMini.Controllers
             return Ok();
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteEmployee(int id)
+        {
+            var employee = await northwindContext.Employees.FindAsync(id);
+
+            if (employee == null) return NotFound();
+
+            northwindContext.Employees.Remove(employee);
+            await northwindContext.SaveChangesAsync();
+
+            return Ok();
+        }
+
+
         private bool EmployeeExists(int id)
         {
             return northwindContext.Employees.Any(e => e.EmployeeId== id);
