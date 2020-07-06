@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -38,12 +39,46 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Supplier>> PostSupplier([FromBody]Supplier newSupplier)
+        public async Task<ActionResult<Supplier>> PostSupplier([FromBody] Supplier newSupplier)
         {
             northwindContext.Suppliers.Add(newSupplier);
             await northwindContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetSupplier), new { id = newSupplier.SupplierId }, newSupplier);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutSupplier(int id, [FromBody] Supplier editedSupplier)
+        {
+            if (id == editedSupplier.SupplierId) return BadRequest();
+
+            northwindContext.Entry(editedSupplier).State = EntityState.Modified;
+
+            try
+            {
+                await northwindContext.SaveChangesAsync();
+            }
+            catch(DBConcurrencyException)
+            {
+                var isSupplierExist = northwindContext.Suppliers.Any(a => a.SupplierId == id);
+
+                if (!isSupplierExist) return NotFound();
+                else throw;
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteSupplier(int id)
+        {
+            var supplier = await northwindContext.Suppliers.FindAsync(id);
+
+            northwindContext.Suppliers.Remove(supplier);
+
+            await northwindContext.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }
