@@ -36,5 +36,14 @@ namespace OMSWebMini.Controllers
 
             return shipper;
         }
+
+        [HttpPost]
+        public async Task<ActionResult> PostShipper([FromBody]Shipper newShipper)
+        {
+            northwindContext.Shippers.Add(newShipper);
+            await northwindContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetShipper), new { id = newShipper.ShipperId }, newShipper);
+        }
     }
 }
