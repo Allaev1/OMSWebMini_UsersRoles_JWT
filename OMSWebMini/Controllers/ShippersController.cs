@@ -38,12 +38,34 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> PostShipper([FromBody]Shipper newShipper)
+        public async Task<ActionResult> PostShipper([FromBody] Shipper newShipper)
         {
             northwindContext.Shippers.Add(newShipper);
             await northwindContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetShipper), new { id = newShipper.ShipperId }, newShipper);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutShipper(int id, [FromBody] Shipper editShipper)
+        {
+            if (id != editShipper.ShipperId) return BadRequest();
+
+            northwindContext.Entry(editShipper).State = EntityState.Modified;
+
+            try
+            {
+                await northwindContext.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                bool isShipperExist = northwindContext.Shippers.Any(a => a.ShipperId == id);
+
+                if (!isShipperExist) return NotFound();
+                else throw;
+            }
+
+            return Ok();
         }
     }
 }
