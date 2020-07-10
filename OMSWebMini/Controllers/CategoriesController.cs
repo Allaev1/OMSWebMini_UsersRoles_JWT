@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMSWebMini.Data;
@@ -28,12 +29,12 @@ namespace OMSWebMini.Controllers
             if (showPicture)
                 return await _context.Categories.ToListAsync();
             else
-                return await _context.Categories.Select(x => 
-                new Category() 
-                { 
-                    CategoryId = x.CategoryId, 
-                    CategoryName = x.CategoryName, 
-                    Description = x.Description 
+                return await _context.Categories.Select(x =>
+                new Category()
+                {
+                    CategoryId = x.CategoryId,
+                    CategoryName = x.CategoryName,
+                    Description = x.Description
                 }).ToListAsync();
         }
 
@@ -55,7 +56,7 @@ namespace OMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, [FromBody]Category category)
+        public async Task<IActionResult> PutCategory(int id, [FromBody] Category category)
         {
             if (id != category.CategoryId)
             {
@@ -109,6 +110,20 @@ namespace OMSWebMini.Controllers
             await _context.SaveChangesAsync();
 
             return category;
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<ActionResult> PatchCategory(int id,[FromBody]JsonPatchDocument<Category> patchDoc)
+        {
+            var category = await _context.Categories.FindAsync(id);
+
+            if (category == null) return NotFound();
+
+            patchDoc.ApplyTo(category);
+
+            await _context.SaveChangesAsync();
+
+            return new ObjectResult(category);
         }
 
         private bool CategoryExists(int id)
