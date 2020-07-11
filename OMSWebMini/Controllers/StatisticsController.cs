@@ -47,7 +47,7 @@ namespace OMSWebMini.Controllers
             {
                 var employee = northwindContext.Employees.Find(go.Key);
 
-                var sales = go.Sum(a => a.OrderDetails.ToList().Sum(a => (decimal)a.Quantity * a.UnitPrice));
+                var sales = go.Sum(a => a.OrderDetails.Sum(a => (decimal)a.Quantity * a.UnitPrice));
 
                 return new SalesByEmployee { LastName = employee.LastName, Sales = sales };
             }).OrderBy(a => a.Sales).ToList();
@@ -64,6 +64,25 @@ namespace OMSWebMini.Controllers
             var customersByCountries = groupedCustomers.Select(gc => new CustomersByCountry { CountryName = gc.Key, CustomersCount = gc.Count() }).ToList();
 
             return customersByCountries;
+        }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PurchasesByCustomer>>> GetPurchasesByCustomers()
+        {
+            var groupedOrders = northwindContext.Orders.ToList().GroupBy(o => o.CustomerId);
+            northwindContext.OrderDetails.ToList(); //Loading order details from database otherwise collection will be empty
+
+            var purchasesByCustomers = groupedOrders.Select(go =>
+            {
+                var customer = northwindContext.Customers.Find(go.Key);
+
+                var purchases = go.Sum(a => a.OrderDetails.Sum(a => a.Quantity * a.UnitPrice));
+
+                return new PurchasesByCustomer { CompanyName = customer.CompanyName, Purchases = purchases };
+            }).OrderByDescending(a=>a.Purchases).Take(10).ToList();
+
+            return purchasesByCustomers;
         }
     }
 
@@ -86,6 +105,12 @@ namespace OMSWebMini.Controllers
         public string CountryName { set; get; }
 
         public int CustomersCount { set; get; }
+    }
+
+    public class PurchasesByCustomer
+    {
+        public string CompanyName { set; get; }
+        public decimal Purchases { set; get; }
     }
     #endregion 
 }
