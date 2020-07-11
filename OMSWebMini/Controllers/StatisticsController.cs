@@ -54,6 +54,17 @@ namespace OMSWebMini.Controllers
 
             return salesByEmployees;
         }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CustomersByCountry>>> GetCustomersByCountries()
+        {
+            var groupedCustomers = northwindContext.Customers.GroupBy(c => c.Country);
+
+            var customersByCountries = groupedCustomers.Select(gc => new CustomersByCountry { CountryName = gc.Key, CustomersCount = gc.Count() }).ToList();
+
+            return customersByCountries;
+        }
     }
 
     #region Screen objects
@@ -68,6 +79,13 @@ namespace OMSWebMini.Controllers
         public string LastName { set; get; }
 
         public decimal Sales { set; get; }
+    }
+
+    public class CustomersByCountry
+    {
+        public string CountryName { set; get; }
+
+        public int CustomersCount { set; get; }
     }
     #endregion 
 }
