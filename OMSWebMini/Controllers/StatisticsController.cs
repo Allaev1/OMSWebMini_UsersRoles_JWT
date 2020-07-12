@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OMSWebMini.Data;
+using OMSWebMini.Model;
 
 namespace OMSWebMini.Controllers
 {
@@ -131,6 +132,30 @@ namespace OMSWebMini.Controllers
                 ToList();
 
             return salesByCountries;
+        }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<decimal>> GetSummary(string summaryType)
+        {
+            switch (summaryType)
+            {
+                case "OverallSales":
+                    return northwindContext.OrderDetails.Sum(a => a.Quantity * a.UnitPrice);
+                case "OrdersQuantity":
+                    return northwindContext.Orders.Count();
+                case "AverageCheck":
+                case "MaxCheck":
+                case "MinCheck":
+                    var groupedOrderDetails = northwindContext.OrderDetails.ToList().GroupBy(od => od.OrderId);
+                    var ordersChecks = groupedOrderDetails.Select(god => new { Sales = god.Sum(a => a.Quantity * a.UnitPrice) });
+
+                    if (summaryType == "MaxCheck") return ordersChecks.Max(a => a.Sales);
+                    else if (summaryType == "AverageCheck") return ordersChecks.Average(a => a.Sales);
+                    else return ordersChecks.Min(a=>a.Sales); 
+                default:
+                    return BadRequest();
+            }
         }
     }
 
