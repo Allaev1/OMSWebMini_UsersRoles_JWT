@@ -80,9 +80,41 @@ namespace OMSWebMini.Controllers
                 var purchases = go.Sum(a => a.OrderDetails.Sum(a => a.Quantity * a.UnitPrice));
 
                 return new PurchasesByCustomer { CompanyName = customer.CompanyName, Purchases = purchases };
-            }).OrderByDescending(a=>a.Purchases).Take(10).ToList();
+            }).OrderByDescending(a => a.Purchases).Take(10).ToList();
 
             return purchasesByCustomers;
+        }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<OrdersByCountry>>> GetOrdersByCountries()
+        {
+            northwindContext.Customers.ToList(); //Loading customers from database otherwise collection will be empty 
+
+            var groupedOrders = northwindContext.Orders.ToList().GroupBy(o => o.Customer.Country);
+
+            var ordersByCountries = groupedOrders.Select(go => new OrdersByCountry { CountryName = go.Key, OrdersCount = go.Count() }).
+                OrderByDescending(a => a.OrdersCount).
+                Take(10).
+                ToList();
+
+            return ordersByCountries;
+        }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<SalesByCategory>>> GetSalesByCategories()
+        {
+            northwindContext.Products.ToList(); //Loading products from database otherwise collection will be empty 
+            northwindContext.Categories.ToList(); //Loading categories from database otherwise collection will be empty 
+
+            var groupedOrderDetail = northwindContext.OrderDetails.ToList().GroupBy(od => od.Product.Category);
+
+            var salesByCategories = groupedOrderDetail.Select(god => new SalesByCategory { CategoryName = god.Key.CategoryName, Sales = god.Sum(a => a.Quantity * a.UnitPrice) }).
+                OrderByDescending(a => a.Sales).
+                ToList();
+
+            return salesByCategories;
         }
     }
 
@@ -111,6 +143,18 @@ namespace OMSWebMini.Controllers
     {
         public string CompanyName { set; get; }
         public decimal Purchases { set; get; }
+    }
+
+    public class OrdersByCountry
+    {
+        public string CountryName { set; get; }
+        public int OrdersCount { set; get; }
+    }
+
+    public class SalesByCategory
+    {
+        public string CategoryName { set; get; }
+        public decimal Sales { set; get; }
     }
     #endregion 
 }
