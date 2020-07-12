@@ -116,6 +116,22 @@ namespace OMSWebMini.Controllers
 
             return salesByCategories;
         }
+
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<SalesByCountry>>> GetSalesByCountries()
+        {
+            await northwindContext.Orders.ToListAsync(); //Loading orders from database otherwise collection will be empty 
+            await northwindContext.Customers.ToListAsync(); //Loading customers from database otherwise collection will be empty 
+
+            var groupedOrderDetails = northwindContext.OrderDetails.ToList().GroupBy(od => od.Order.Customer.Country);
+
+            var salesByCountries = groupedOrderDetails.Select(god => new SalesByCountry { CountryName = god.Key, Sales = god.Sum(a => a.Quantity * a.UnitPrice) }).
+                OrderByDescending(a => a.Sales).
+                ToList();
+
+            return salesByCountries;
+        }
     }
 
     #region Screen objects
@@ -154,6 +170,12 @@ namespace OMSWebMini.Controllers
     public class SalesByCategory
     {
         public string CategoryName { set; get; }
+        public decimal Sales { set; get; }
+    }
+
+    public class SalesByCountry
+    {
+        public string CountryName { set; get; }
         public decimal Sales { set; get; }
     }
     #endregion 
