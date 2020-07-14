@@ -25,14 +25,12 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductsByCategory>>> GetProductsByCategories()
         {
-            var groupedProducts = northwindContext.Products.ToList().GroupBy(p => p.CategoryId);
-
-            var productsByCategories = groupedProducts.Select(gp =>
+            var productsByCategories = await northwindContext.Categories.Select(category => new ProductsByCategory
             {
-                var category = northwindContext.Categories.Find(gp.Key);
-
-                return new ProductsByCategory { CategoryName = category.CategoryName, ProductCount = gp.Count() };
-            }).OrderBy(a => a.ProductCount).ToList();
+                CategoryName = category.CategoryName,
+                ProductCount = category.Products.Count
+            }
+            ).ToListAsync();
 
             return productsByCategories;
         }
@@ -41,19 +39,20 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalesByEmployee>>> GetSalesByEmployees()
         {
-            var groupedOrders = northwindContext.Orders.ToList().GroupBy(o => o.EmployeeId);
-            northwindContext.OrderDetails.ToList(); //Loading order details from database otherwise collection will be empty
+            var employees = await northwindContext.Employees.ToListAsync();
+            await northwindContext.Orders.ToListAsync(); //Loading orders
+            await northwindContext.OrderDetails.ToListAsync(); //Loading order details
 
-            var salesByEmployees = groupedOrders.Select(go =>
+            return await Task.Run(() =>
             {
-                var employee = northwindContext.Employees.Find(go.Key);
+                var salesByEmployees = employees.Select(e => new SalesByEmployee
+                {
+                    LastName = e.LastName,
+                    Sales = e.Orders.Sum(a => a.OrderDetails.Sum(b => b.Quantity * b.UnitPrice))
+                }).ToList();
 
-                var sales = go.Sum(a => a.OrderDetails.Sum(a => (decimal)a.Quantity * a.UnitPrice));
-
-                return new SalesByEmployee { LastName = employee.LastName, Sales = sales };
-            }).OrderBy(a => a.Sales).ToList();
-
-            return salesByEmployees;
+                return salesByEmployees;
+            });
         }
 
         [Route("[action]")]
@@ -62,7 +61,7 @@ namespace OMSWebMini.Controllers
         {
             var groupedCustomers = northwindContext.Customers.GroupBy(c => c.Country);
 
-            var customersByCountries = groupedCustomers.Select(gc => new CustomersByCountry { CountryName = gc.Key, CustomersCount = gc.Count() }).ToList();
+            var customersByCountries = await groupedCustomers.Select(gc => new CustomersByCountry { CountryName = gc.Key, CustomersCount = gc.Count() }).ToListAsync();
 
             return customersByCountries;
         }
@@ -71,33 +70,32 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PurchasesByCustomer>>> GetPurchasesByCustomers()
         {
-            var groupedOrders = northwindContext.Orders.ToList().GroupBy(o => o.CustomerId);
-            northwindContext.OrderDetails.ToList(); //Loading order details from database otherwise collection will be empty
+            var customers = await northwindContext.Customers.ToListAsync();
+            await northwindContext.Orders.ToListAsync();
+            await northwindContext.OrderDetails.ToListAsync();
 
-            var purchasesByCustomers = groupedOrders.Select(go =>
+            return await Task.Run(() =>
             {
-                var customer = northwindContext.Customers.Find(go.Key);
+                var purchasesByCustomers = customers.Select(customer => new PurchasesByCustomer
+                {
+                    CompanyName = customer.CompanyName,
+                    Purchases = customer.Orders.Sum(order => order.OrderDetails.Sum(orderDetail => orderDetail.Quantity * orderDetail.UnitPrice))
+                }).OrderByDescending(purchasesByCustomer => purchasesByCustomer.Purchases).Take(10).ToList();
 
-                var purchases = go.Sum(a => a.OrderDetails.Sum(a => a.Quantity * a.UnitPrice));
-
-                return new PurchasesByCustomer { CompanyName = customer.CompanyName, Purchases = purchases };
-            }).OrderByDescending(a => a.Purchases).Take(10).ToList();
-
-            return purchasesByCustomers;
+                return purchasesByCustomers;
+            });
         }
 
         [Route("[action]")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<OrdersByCountry>>> GetOrdersByCountries()
         {
-            northwindContext.Customers.ToList(); //Loading customers from database otherwise collection will be empty 
+            var groupedOrders = northwindContext.Orders.GroupBy(order => order.Customer.Country);
 
-            var groupedOrders = northwindContext.Orders.ToList().GroupBy(o => o.Customer.Country);
-
-            var ordersByCountries = groupedOrders.Select(go => new OrdersByCountry { CountryName = go.Key, OrdersCount = go.Count() }).
-                OrderByDescending(a => a.OrdersCount).
+            var ordersByCountries = await groupedOrders.Select(orderGroup => new OrdersByCountry { CountryName = orderGroup.Key, OrdersCount = orderGroup.Count() }).
+                OrderByDescending(ordersByCountry => ordersByCountry.OrdersCount).
                 Take(10).
-                ToList();
+                ToListAsync();
 
             return ordersByCountries;
         }
@@ -106,14 +104,13 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalesByCategory>>> GetSalesByCategories()
         {
-            northwindContext.Products.ToList(); //Loading products from database otherwise collection will be empty 
-            northwindContext.Categories.ToList(); //Loading categories from database otherwise collection will be empty 
+            var groupedOrderDetail = northwindContext.OrderDetails.GroupBy(orderDetail => orderDetail.Product.Category.CategoryName);
 
-            var groupedOrderDetail = northwindContext.OrderDetails.ToList().GroupBy(od => od.Product.Category);
-
-            var salesByCategories = groupedOrderDetail.Select(god => new SalesByCategory { CategoryName = god.Key.CategoryName, Sales = god.Sum(a => a.Quantity * a.UnitPrice) }).
-                OrderByDescending(a => a.Sales).
-                ToList();
+            var salesByCategories = await groupedOrderDetail.Select(orderDetailGroup => new SalesByCategory
+            {
+                CategoryName = orderDetailGroup.Key,
+                Sales = orderDetailGroup.Sum(orderDetail => orderDetail.Quantity * orderDetail.UnitPrice)
+            }).OrderByDescending(salesByCategory => salesByCategory.Sales).ToListAsync();
 
             return salesByCategories;
         }
@@ -122,14 +119,13 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalesByCountry>>> GetSalesByCountries()
         {
-            await northwindContext.Orders.ToListAsync(); //Loading orders from database otherwise collection will be empty 
-            await northwindContext.Customers.ToListAsync(); //Loading customers from database otherwise collection will be empty 
+            var groupedOrderDetails = northwindContext.OrderDetails.GroupBy(orderDetail => orderDetail.Order.Customer.Country);
 
-            var groupedOrderDetails = northwindContext.OrderDetails.ToList().GroupBy(od => od.Order.Customer.Country);
-
-            var salesByCountries = groupedOrderDetails.Select(god => new SalesByCountry { CountryName = god.Key, Sales = god.Sum(a => a.Quantity * a.UnitPrice) }).
-                OrderByDescending(a => a.Sales).
-                ToList();
+            var salesByCountries = await groupedOrderDetails.Select(orderDetailGroup => new SalesByCountry
+            {
+                CountryName = orderDetailGroup.Key,
+                Sales = orderDetailGroup.Sum(orderDetail => orderDetail.Quantity * orderDetail.UnitPrice)
+            }).OrderByDescending(salesByCountry => salesByCountry.Sales).ToListAsync();
 
             return salesByCountries;
         }
@@ -141,18 +137,18 @@ namespace OMSWebMini.Controllers
             switch (summaryType)
             {
                 case "OverallSales":
-                    return northwindContext.OrderDetails.Sum(a => a.Quantity * a.UnitPrice);
+                    return await northwindContext.OrderDetails.SumAsync(a => a.Quantity * a.UnitPrice);
                 case "OrdersQuantity":
-                    return northwindContext.Orders.Count();
+                    return await northwindContext.Orders.CountAsync();
                 case "AverageCheck":
                 case "MaxCheck":
                 case "MinCheck":
-                    var groupedOrderDetails = northwindContext.OrderDetails.ToList().GroupBy(od => od.OrderId);
-                    var ordersChecks = groupedOrderDetails.Select(god => new { Sales = god.Sum(a => a.Quantity * a.UnitPrice) });
+                    var groupedOrderDetails = northwindContext.OrderDetails.GroupBy(od => od.OrderId);
+                    var ordersChecks = await groupedOrderDetails.Select(god => new { Sales = god.Sum(a => a.Quantity * a.UnitPrice) }).ToListAsync();
 
                     if (summaryType == "MaxCheck") return ordersChecks.Max(a => a.Sales);
                     else if (summaryType == "AverageCheck") return ordersChecks.Average(a => a.Sales);
-                    else return ordersChecks.Min(a=>a.Sales); 
+                    else return ordersChecks.Min(a => a.Sales);
                 default:
                     return BadRequest();
             }
