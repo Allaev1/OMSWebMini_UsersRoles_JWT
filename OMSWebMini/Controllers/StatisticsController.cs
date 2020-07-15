@@ -45,10 +45,10 @@ namespace OMSWebMini.Controllers
 
             return await Task.Run(() =>
             {
-                var salesByEmployees = employees.Select(e => new SalesByEmployee
+                var salesByEmployees = employees.Select(employee => new SalesByEmployee
                 {
-                    LastName = e.LastName,
-                    Sales = e.Orders.Sum(a => a.OrderDetails.Sum(b => b.Quantity * b.UnitPrice))
+                    LastName = employee.LastName,
+                    Sales = employee.Orders.Sum(order => order.OrderDetails.Sum(orderDetail => orderDetail.Quantity * orderDetail.UnitPrice))
                 }).ToList();
 
                 return salesByEmployees;
@@ -59,9 +59,13 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomersByCountry>>> GetCustomersByCountries()
         {
-            var groupedCustomers = northwindContext.Customers.GroupBy(c => c.Country);
+            var groupedCustomers = northwindContext.Customers.GroupBy(customer => customer.Country);
 
-            var customersByCountries = await groupedCustomers.Select(gc => new CustomersByCountry { CountryName = gc.Key, CustomersCount = gc.Count() }).ToListAsync();
+            var customersByCountries = await groupedCustomers.Select(customerGroup => new CustomersByCountry 
+            { 
+                CountryName = customerGroup.Key, 
+                CustomersCount = customerGroup.Count() 
+            }).ToListAsync();
 
             return customersByCountries;
         }
