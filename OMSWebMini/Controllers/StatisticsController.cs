@@ -39,9 +39,9 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<SalesByEmployee>>> GetSalesByEmployees()
         {
-            var employees = await northwindContext.Employees.ToListAsync();
-            await northwindContext.Orders.ToListAsync(); //Loading orders
-            await northwindContext.OrderDetails.ToListAsync(); //Loading order details
+            var employees = await northwindContext.Employees.Include(employee=>employee.Orders).
+                ThenInclude(employeeOrder=>employeeOrder.OrderDetails).
+                ToListAsync();
 
             return await Task.Run(() =>
             {
@@ -70,9 +70,9 @@ namespace OMSWebMini.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PurchasesByCustomer>>> GetPurchasesByCustomers()
         {
-            var customers = await northwindContext.Customers.ToListAsync();
-            await northwindContext.Orders.ToListAsync();
-            await northwindContext.OrderDetails.ToListAsync();
+            var customers = await northwindContext.Customers.Include(customer => customer.Orders).
+                ThenInclude(customerOrder => customerOrder.OrderDetails).
+                ToListAsync();
 
             return await Task.Run(() =>
             {
