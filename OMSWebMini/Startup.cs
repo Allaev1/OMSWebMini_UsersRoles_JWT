@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace OMSWebMini
 {
@@ -29,6 +30,15 @@ namespace OMSWebMini
             services.AddControllersWithViews().
                 AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Version = "Version #1",
+                    Title = "OMSWebMini",
+                });
+            });
+
             services.AddDbContext<NorthwindContext>();
 
             services.AddControllers();
@@ -41,6 +51,10 @@ namespace OMSWebMini
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 
             app.UseHttpsRedirection();
 
