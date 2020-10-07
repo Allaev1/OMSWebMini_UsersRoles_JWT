@@ -12,11 +12,16 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using OMSWebMini.Services.Authorization;
 
 namespace OMSWebMini
 {
     public class Startup
     {
+        const string SECURITY_KEY = "0d5b3235a8b403c3dab9c3f4f65c07fcalskd234n1k41230";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -27,6 +32,9 @@ namespace OMSWebMini
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var signingSecurityKey = new SigningSecurityKey(SECURITY_KEY, SecurityAlgorithms.HmacSha256);
+            services.AddSingleton<ISigningSecurityKey>(signingSecurityKey);
+
             services.AddControllersWithViews().
                 AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
@@ -42,6 +50,25 @@ namespace OMSWebMini
             services.AddDbContext<NorthwindContext>();
 
             services.AddControllers();
+
+            const string jwtSchemeName = "JwtBearer";
+            services.AddAuthentication(options => { options.DefaultAuthenticateScheme = jwtSchemeName; options.DefaultChallengeScheme = jwtSchemeName; })
+                .AddJwtBearer(jwtSchemeName, options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = "OMSWebMini_IIS",
+
+                        ValidateAudience = true,
+                        ValidAudience= "OMSWebMini_IISAudience",
+
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = signingSecurityKey.GetKey(),
+
+                        ValidateLifetime = true
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -51,6 +78,8 @@ namespace OMSWebMini
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseAuthentication();
 
             app.UseSwagger();
 
