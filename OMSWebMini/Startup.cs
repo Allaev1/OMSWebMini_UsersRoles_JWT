@@ -17,6 +17,8 @@ using Microsoft.IdentityModel.Tokens;
 using OMSWebMini.Services.Authorization;
 using Microsoft.EntityFrameworkCore;
 using OMSWebMini.Authentication.Data;
+using OMSWebMini.Authentication.Model;
+using Microsoft.AspNetCore.Identity;
 
 namespace OMSWebMini
 {

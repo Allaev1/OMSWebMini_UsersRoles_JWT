@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace OMSWebMini.Authentication.Model
 {
-    public class RegistrationModel
+    public class AuthenticationModel
     {
         public string Login { set; get; }
 

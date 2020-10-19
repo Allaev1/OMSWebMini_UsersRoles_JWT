@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OMSWebMini.Authentication.Data;
+using OMSWebMini.Authentication.Model;
 using OMSWebMini.Services.Authorization;
 
 namespace OMSWebMini.Controllers
@@ -17,16 +20,25 @@ namespace OMSWebMini.Controllers
     public class AuthorizationController : ControllerBase
     {
         ISigningSecurityKey signingSecurityKey;
+        AuthenticationContext context;
 
-        public AuthorizationController(ISigningSecurityKey signingSecurityKey)
+        public AuthorizationController(ISigningSecurityKey signingSecurityKey,AuthenticationContext context)
         {
             this.signingSecurityKey = signingSecurityKey;
+            this.context = context;
         }
 
         [HttpPost]
         [AllowAnonymous]
-        public ActionResult<string> Authorize()
+        public async Task<ActionResult<string>> Authorize(AuthenticationModel model)
         {
+            ApplicationUser applicationUser = await context.Users.SingleOrDefaultAsync(a => a.Login == model.Login);
+
+            if (applicationUser == null)
+                return Unauthorized();
+            else if (applicationUser.PasswordHash != model.Password)
+                return Unauthorized();
+
             var claims = new Claim[]
             {
                 new Claim(ClaimTypes.NameIdentifier,"Bekzod.Allaev")

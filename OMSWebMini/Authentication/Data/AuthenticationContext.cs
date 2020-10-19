@@ -14,15 +14,12 @@ namespace OMSWebMini.Authentication.Data
     //https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/providers?tabs=dotnet-core-cli
     public class AuthenticationContext : IdentityUserContext<ApplicationUser>
     {
-        public AuthenticationContext(DbContextOptions options) 
+        public AuthenticationContext(DbContextOptions options)
             : base(options)
         {
 
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-        {
-            //options.UseSqlite("Data Source=Identity.db");
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options) { }
     }
 }
