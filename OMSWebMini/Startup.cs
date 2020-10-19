@@ -15,6 +15,8 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using OMSWebMini.Services.Authorization;
+using Microsoft.EntityFrameworkCore;
+using OMSWebMini.Authentication.Data;
 
 namespace OMSWebMini
 {
@@ -48,6 +50,8 @@ namespace OMSWebMini
             });
 
             services.AddDbContext<NorthwindContext>();
+
+            services.AddDbContext<AuthenticationContext>(options => options.UseSqlite("Data Source = Identity.db"));
 
             services.AddControllers();
 
