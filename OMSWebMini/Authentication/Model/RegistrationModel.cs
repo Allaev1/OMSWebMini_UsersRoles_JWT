@@ -7,7 +7,7 @@ namespace OMSWebMini.Authentication.Model
 {
     public class RegistrationModel
     {
-        public string Login { set; get; }
+        public string UserName { set; get; }
 
         public string Password { set; get; }
 

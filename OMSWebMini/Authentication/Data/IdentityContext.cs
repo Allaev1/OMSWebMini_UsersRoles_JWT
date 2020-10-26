@@ -10,9 +10,9 @@ namespace OMSWebMini.Authentication.Data
 {
     //In this project you have two database providers so you will need in article which explains how to do migration in project with multiple database providers
     //https://docs.microsoft.com/en-us/ef/core/managing-schemas/migrations/providers?tabs=dotnet-core-cli
-    public class AuthenticationContext : IdentityDbContext<ApplicationUser>
+    public class IdentityContext : IdentityDbContext<ApplicationUser>
     {
-        public AuthenticationContext(DbContextOptions options)
+        public IdentityContext(DbContextOptions options)
             : base(options)
         {
 

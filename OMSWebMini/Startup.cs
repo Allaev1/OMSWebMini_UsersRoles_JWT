@@ -53,7 +53,13 @@ namespace OMSWebMini
 
             services.AddDbContext<NorthwindContext>();
 
-            services.AddDbContext<AuthenticationContext>(options => options.UseSqlite("Data Source = Identity.db"));
+            //Add database for identity
+            services.AddDbContext<IdentityContext>(options => options.UseSqlite("Data Source = Identity.db"));
+
+            //Add identity
+            services.AddIdentity<ApplicationUser, IdentityRole>().
+                AddEntityFrameworkStores<IdentityContext>().
+                AddDefaultTokenProviders(); //This method generate token for email confirmation, reset password, change telephone number and two-factor authentication
 
             services.AddControllers();
 

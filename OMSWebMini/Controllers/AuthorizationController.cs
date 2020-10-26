@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -20,41 +21,41 @@ namespace OMSWebMini.Controllers
     public class AuthorizationController : ControllerBase
     {
         ISigningSecurityKey signingSecurityKey;
-        AuthenticationContext context;
+        UserManager<ApplicationUser> userManager;
 
-        public AuthorizationController(ISigningSecurityKey signingSecurityKey,AuthenticationContext context)
+        public AuthorizationController(ISigningSecurityKey signingSecurityKey, UserManager<ApplicationUser> userManager)
         {
             this.signingSecurityKey = signingSecurityKey;
-            this.context = context;
+            this.userManager = userManager;
         }
 
         [HttpPost]
         [AllowAnonymous]
         public async Task<ActionResult<string>> Authorize(AuthenticationModel model)
         {
-            ApplicationUser applicationUser = await context.Users.SingleOrDefaultAsync(a => a.Login == model.Login);
+            var user = await userManager.FindByNameAsync(model.UserName);
 
-            if (applicationUser == null)
-                return Unauthorized();
-            else if (applicationUser.PasswordHash != model.Password)
-                return Unauthorized();
-
-            var claims = new Claim[]
+            if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
-                new Claim(ClaimTypes.NameIdentifier,"Bekzod.Allaev")
-            };
+                var claims = new Claim[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier,"Bekzod.Allaev")
+                };
 
-            var token = new JwtSecurityToken(
-                issuer: "OMSWebMini_IIS",
-                audience: "OMSWebMini_IISAudience",
-                expires: DateTime.Now.AddMinutes(30),
-                claims: claims,
-                signingCredentials: new SigningCredentials(
-                    signingSecurityKey.GetKey(),
-                    signingSecurityKey.SigningAlgorithm));
+                var token = new JwtSecurityToken(
+                    issuer: "OMSWebMini_IIS",
+                    audience: "OMSWebMini_IISAudience",
+                    expires: DateTime.Now.AddMinutes(30),
+                    claims: claims,
+                    signingCredentials: new SigningCredentials(
+                        signingSecurityKey.GetKey(),
+                        signingSecurityKey.SigningAlgorithm));
 
-            string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
-            return jwtToken;
+                string jwtToken = new JwtSecurityTokenHandler().WriteToken(token);
+                return jwtToken;
+            }
+
+            return Unauthorized();
         }
     }
 }
