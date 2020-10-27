@@ -35,7 +35,7 @@ namespace OMSWebMini.Controllers
         {
             var user = await userManager.FindByNameAsync(registrationModel.UserName);
 
-            if (user == null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Such username already exists" });
+            if (user != null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Such username already exists" });
 
             ApplicationUser applicationUser = new ApplicationUser()
             {

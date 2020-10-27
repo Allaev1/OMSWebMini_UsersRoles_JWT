@@ -37,10 +37,17 @@ namespace OMSWebMini.Controllers
 
             if (user != null && await userManager.CheckPasswordAsync(user, model.Password))
             {
-                var claims = new Claim[]
+                var userRoles = await userManager.GetRolesAsync(user);
+
+                var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier,"Bekzod.Allaev")
+                    new Claim(ClaimTypes.NameIdentifier,model.UserName)
                 };
+
+                foreach (var userRole in userRoles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
 
                 var token = new JwtSecurityToken(
                     issuer: "OMSWebMini_IIS",
