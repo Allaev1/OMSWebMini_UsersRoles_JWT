@@ -30,12 +30,13 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPost]
-        [Route("[action]")]
         public async Task<ActionResult> RegisterUser(RegistrationModel registrationModel)
         {
             var user = await userManager.FindByNameAsync(registrationModel.UserName);
 
             if (user != null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Such username already exists" });
+
+            if (!await roleManager.RoleExistsAsync(registrationModel.Role)) return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = "No such role" });
 
             ApplicationUser applicationUser = new ApplicationUser()
             {
@@ -48,42 +49,56 @@ namespace OMSWebMini.Controllers
             if (!result.Succeeded)
                 return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
-            await AddToRoleAsync(applicationUser, UserRoles.User);
+            await AddToRoleAsync(applicationUser, registrationModel.Role);
 
             return Ok(new Response { Status = "Success", Message = "User created" });
         }
 
-        [HttpPost]
-        [Route("[action]")]
-        public async Task<ActionResult<Response>> RegisterAdmin(RegistrationModel registrationAdminModel)
-        {
-            var user = await userManager.FindByNameAsync(registrationAdminModel.UserName);
+        //[HttpPost]
+        //[Route("[action]")]
+        //public async Task<ActionResult<Response>> RegisterAdmin(RegistrationModel registrationAdminModel)
+        //{
+        //    var user = await userManager.FindByNameAsync(registrationAdminModel.UserName);
 
-            if (user == null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Such username already exists" });
+        //    if (user == null) return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "Such username already exists" });
 
-            ApplicationUser applicationUser = new ApplicationUser()
-            {
-                UserName = registrationAdminModel.UserName,
-                Email = registrationAdminModel.Email
-            };
+        //    ApplicationUser applicationUser = new ApplicationUser()
+        //    {
+        //        UserName = registrationAdminModel.UserName,
+        //        Email = registrationAdminModel.Email
+        //    };
 
-            var result = await userManager.CreateAsync(applicationUser, registrationAdminModel.Password);
+        //    var result = await userManager.CreateAsync(applicationUser, registrationAdminModel.Password);
 
-            if (!result.Succeeded)
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
+        //    if (!result.Succeeded)
+        //        return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = "User creation failed! Please check user details and try again." });
 
-            await AddToRoleAsync(applicationUser, UserRoles.Admin);
+        //    await AddToRoleAsync(applicationUser, UserRoles.Admin);
 
-            return Ok(new Response { Status = "Success", Message = "Admin created" });
+        //    return Ok(new Response { Status = "Success", Message = "Admin created" });
 
-        }
+        //}
 
         private async Task AddToRoleAsync(ApplicationUser user, string role)
         {
-            if (!await roleManager.RoleExistsAsync(UserRoles.Admin))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.Admin));
-            if (!await roleManager.RoleExistsAsync(UserRoles.User))
-                await roleManager.CreateAsync(new IdentityRole(UserRoles.User));
+            if (!await roleManager.RoleExistsAsync(UserRoles.Founder))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Founder));
+            if (!await roleManager.RoleExistsAsync(UserRoles.CustomerManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.CustomerManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.HRManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.HRManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.StoreManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.StoreManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.SupplierManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.SupplierManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.ShipperManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.ShipperManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.OrderManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.OrderManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.StatisticManager))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.StatisticManager));
+            if (!await roleManager.RoleExistsAsync(UserRoles.Customer))
+                await roleManager.CreateAsync(new IdentityRole(UserRoles.Customer));
 
             await userManager.AddToRoleAsync(user, role);
         }

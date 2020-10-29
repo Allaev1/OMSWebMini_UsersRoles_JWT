@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OMSWebMini.Authentication.Model;
 using OMSWebMini.Data;
 using OMSWebMini.Model;
 
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.SupplierManager+","+UserRoles.Founder)]
     [ApiController]
     public class SuppliersController : ControllerBase
     {

@@ -14,7 +14,7 @@ using OMSWebMini.Model;
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = UserRoles.User)]
+    [Authorize(Roles = UserRoles.CustomerManager + "," + UserRoles.Founder)]
     [ApiController]
     public class CustomersController : ControllerBase
     {
@@ -59,7 +59,7 @@ namespace OMSWebMini.Controllers
             {
                 await northwindContext.SaveChangesAsync();
             }
-            catch(DBConcurrencyException)
+            catch (DBConcurrencyException)
             {
                 bool isCustomerExist = northwindContext.Customers.Any(a => a.CustomerId == id);
 

@@ -9,11 +9,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using OMSWebMini.Authentication.Model;
 
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
     [ApiController]
     public class ProductsController : ControllerBase
     {
@@ -26,6 +26,7 @@ namespace OMSWebMini.Controllers
 
         // GET: api/Products
         [HttpGet]
+        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await northwindContext.Products.ToListAsync();
@@ -33,6 +34,7 @@ namespace OMSWebMini.Controllers
 
         // GET: api/Products/1
         [HttpGet("{id}")]
+        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await northwindContext.Products.FindAsync(id);
@@ -44,6 +46,7 @@ namespace OMSWebMini.Controllers
 
         // DELETE: api/Products/1
         [HttpDelete("{id}")]
+        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
         public async Task<ActionResult> DeleteProduct(int id)
         {
             var product = await northwindContext.Products.FindAsync(id);
@@ -58,6 +61,7 @@ namespace OMSWebMini.Controllers
 
         // POST: api/Products
         [HttpPost]
+        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
         public async Task<ActionResult<Product>> PostProduct([FromBody] Product newProduct)
         {
             northwindContext.Products.Add(newProduct);
@@ -68,6 +72,7 @@ namespace OMSWebMini.Controllers
 
         // PUT: api/Products/1
         [HttpPut("{id}")]
+        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
         public async Task<ActionResult<Product>> PutProduct(int id, [FromBody] Product product)
         {
             if (id != product.ProductId) return BadRequest();

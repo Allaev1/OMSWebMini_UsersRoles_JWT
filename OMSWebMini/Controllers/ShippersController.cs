@@ -6,13 +6,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OMSWebMini.Authentication.Model;
 using OMSWebMini.Data;
 using OMSWebMini.Model;
 
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.ShipperManager + "," + UserRoles.Founder)]
     [ApiController]
     public class ShippersController : ControllerBase
     {
@@ -59,7 +60,7 @@ namespace OMSWebMini.Controllers
             {
                 await northwindContext.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
             {
                 bool isShipperExist = northwindContext.Shippers.Any(a => a.ShipperId == id);
 

@@ -12,5 +12,7 @@ namespace OMSWebMini.Authentication.Model
         public string Password { set; get; }
 
         public string Email { set; get; }
+
+        public string Role { set; get; }
     }
 }

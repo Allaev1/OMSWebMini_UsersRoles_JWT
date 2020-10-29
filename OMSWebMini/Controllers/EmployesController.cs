@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OMSWebMini.Authentication.Model;
 using OMSWebMini.Data;
 using OMSWebMini.Model;
 
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize(Roles = UserRoles.HRManager + "," + UserRoles.Founder)]
     [ApiController]
     public class EmployesController : ControllerBase
     {
@@ -64,7 +65,7 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Employee>> PostEmployee([FromBody]Employee newEmployee)
+        public async Task<ActionResult<Employee>> PostEmployee([FromBody] Employee newEmployee)
         {
             northwindContext.Employees.Add(newEmployee);
             await northwindContext.SaveChangesAsync();
@@ -73,7 +74,7 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutEmployee(int id,[FromBody]Employee editedEmployee)
+        public async Task<ActionResult> PutEmployee(int id, [FromBody] Employee editedEmployee)
         {
             if (id != editedEmployee.EmployeeId) return BadRequest();
 
@@ -83,7 +84,7 @@ namespace OMSWebMini.Controllers
             {
                 await northwindContext.SaveChangesAsync();
             }
-            catch(DBConcurrencyException)
+            catch (DBConcurrencyException)
             {
                 if (!EmployeeExists(id)) return NotFound();
                 else throw;
@@ -108,7 +109,7 @@ namespace OMSWebMini.Controllers
 
         private bool EmployeeExists(int id)
         {
-            return northwindContext.Employees.Any(e => e.EmployeeId== id);
+            return northwindContext.Employees.Any(e => e.EmployeeId == id);
         }
     }
 }
