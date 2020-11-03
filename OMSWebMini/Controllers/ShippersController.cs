@@ -13,7 +13,7 @@ using OMSWebMini.Model;
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = UserRoles.ShipperManager + "," + UserRoles.Founder)]
+    [Authorize(Roles = UserRoles.ShipperManager)]
     [ApiController]
     public class ShippersController : ControllerBase
     {

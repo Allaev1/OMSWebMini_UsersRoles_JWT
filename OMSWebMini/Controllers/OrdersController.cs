@@ -25,7 +25,7 @@ namespace OMSWebMini.Controllers
 
         // GET: api/Orders
         [HttpGet]
-        [Authorize(Roles = UserRoles.StatisticManager + "," + UserRoles.Founder)]
+        [Authorize(Roles = UserRoles.StatisticManager)]
         public async Task<ActionResult<IEnumerable<Order>>> GetOrders()
         {
             return await _context.Orders.ToListAsync();
@@ -35,7 +35,7 @@ namespace OMSWebMini.Controllers
         //this link may help you: https://stackoverflow.com/questions/59199593/net-core-3-0-possible-object-cycle-was-detected-which-is-not-supported
         // GET: api/Orders/5
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRoles.StatisticManager + "," + UserRoles.Founder)]
+        [Authorize(Roles = UserRoles.StatisticManager)]
         public async Task<ActionResult<Order>> GetOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);
@@ -56,7 +56,7 @@ namespace OMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        [Authorize(Roles = UserRoles.OrderManager + "," + UserRoles.Founder)]
+        [Authorize(Roles = UserRoles.OrderManager)]
         public async Task<IActionResult> PutOrder(int id, Order order)
         {
             if (id != order.OrderId)
@@ -89,7 +89,7 @@ namespace OMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        [Authorize(Roles = UserRoles.OrderManager + "," + UserRoles.Founder)]
+        [Authorize(Roles = UserRoles.OrderManager)]
         public async Task<ActionResult<Order>> PostOrder(Order order)
         {
             _context.Orders.Add(order);
@@ -100,7 +100,7 @@ namespace OMSWebMini.Controllers
 
         // DELETE: api/Orders/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = UserRoles.Founder)]
+        [Authorize(Roles = UserRoles.OrderManager)]
         public async Task<ActionResult<Order>> DeleteOrder(int id)
         {
             var order = await _context.Orders.FindAsync(id);

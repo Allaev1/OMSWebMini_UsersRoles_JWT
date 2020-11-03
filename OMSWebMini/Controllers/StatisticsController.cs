@@ -13,7 +13,7 @@ using OMSWebMini.Model;
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles =UserRoles.StatisticManager+","+UserRoles.Founder)]
+    [Authorize(Roles =UserRoles.StatisticManager)]
     [ApiController]
     public class StatisticsController : ControllerBase
     {

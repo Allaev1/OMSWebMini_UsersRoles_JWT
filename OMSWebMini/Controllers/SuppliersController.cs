@@ -14,7 +14,7 @@ using OMSWebMini.Model;
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = UserRoles.SupplierManager+","+UserRoles.Founder)]
+    [Authorize(Roles = UserRoles.SupplierManager)]
     [ApiController]
     public class SuppliersController : ControllerBase
     {

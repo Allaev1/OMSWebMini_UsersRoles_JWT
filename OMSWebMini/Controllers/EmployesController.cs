@@ -14,7 +14,7 @@ using OMSWebMini.Model;
 namespace OMSWebMini.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize(Roles = UserRoles.HRManager + "," + UserRoles.Founder)]
+    [Authorize(Roles = UserRoles.HRManager)]
     [ApiController]
     public class EmployesController : ControllerBase
     {

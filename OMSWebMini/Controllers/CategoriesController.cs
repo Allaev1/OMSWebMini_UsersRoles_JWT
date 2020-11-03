@@ -26,7 +26,7 @@ namespace OMSWebMini.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<ActionResult<IEnumerable<Category>>> GetCategories(bool showPicture)
         {
             if (showPicture)
@@ -43,7 +43,7 @@ namespace OMSWebMini.Controllers
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + "," + UserRoles.Customer)]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<ActionResult<Category>> GetCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -60,7 +60,7 @@ namespace OMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + ",")]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<IActionResult> PutCategory(int id, [FromBody] Category category)
         {
             if (id != category.CategoryId)
@@ -93,7 +93,7 @@ namespace OMSWebMini.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPost]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + ",")]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<ActionResult<Category>> PostCategory([FromBody] Category category)
         {
             _context.Categories.Add(category);
@@ -104,7 +104,7 @@ namespace OMSWebMini.Controllers
 
         // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + ",")]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<ActionResult<Category>> DeleteCategory(int id)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -120,7 +120,7 @@ namespace OMSWebMini.Controllers
         }
 
         [HttpPatch("{id}")]
-        [Authorize(Roles = UserRoles.StoreManager + "," + UserRoles.Founder + ",")]
+        [Authorize(Roles = UserRoles.StoreManager)]
         public async Task<ActionResult> PatchCategory(int id, [FromBody] JsonPatchDocument<Category> patchDoc)
         {
             var category = await _context.Categories.FindAsync(id);
